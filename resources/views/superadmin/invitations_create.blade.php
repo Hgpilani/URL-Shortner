@@ -21,12 +21,17 @@
                 <form method="POST" action="{{ route('superadmin.invitations.store') }}" class="row g-3">
                     @csrf
 
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label for="company_name" class="form-label">Company Name</label>
                         <input type="text" class="form-control" id="company_name" name="company_name" value="{{ old('company_name') }}" required>
                     </div>
 
-                    <div class="col-md-6">
+                    <div class="col-md-4">
+                        <label for="invited_name" class="form-label">Admin Name</label>
+                        <input type="text" class="form-control" id="invited_name" name="invited_name" value="{{ old('invited_name') }}" required>
+                    </div>
+
+                    <div class="col-md-4">
                         <label for="email" class="form-label">Admin Email</label>
                         <input type="email" class="form-control" id="email" name="email" value="{{ old('email') }}" required>
                     </div>

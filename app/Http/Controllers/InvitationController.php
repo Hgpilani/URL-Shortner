@@ -79,6 +79,7 @@ class InvitationController extends Controller
 
         $data = $request->validate([
             'company_name' => ['required', 'string', 'min:2', 'max:120', 'unique:companies,name'],
+            'invited_name' => ['required', 'string', 'min:2', 'max:120'],
             'email' => ['required', 'email', 'max:255'],
         ]);
 
@@ -93,10 +94,11 @@ class InvitationController extends Controller
 
         $this->assertNoActiveInvitation($company->id, $email);
 
-        DB::transaction(function () use ($company, $request, $email, $adminRoleId): void {
+        DB::transaction(function () use ($company, $request, $email, $adminRoleId, $data): void {
             $invitation = Invitation::query()->create([
                 'company_id' => $company->id,
                 'invited_by' => $request->user()->id,
+                'invited_name' => trim($data['invited_name']),
                 'email' => $email,
                 'role_id' => $adminRoleId,
                 'token' => Str::random(64),
