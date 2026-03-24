@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UrlController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
@@ -28,6 +29,9 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
+    Route::get('/urls', [UrlController::class, 'index'])->name('urls.index');
+    Route::get('/s/{code}', [UrlController::class, 'resolve'])->name('urls.resolve');
+
     Route::get('/superadmin/dashboard', function () {
         abort_unless(DB::table('roles')->where('id', auth()->user()->role_id)->value('name') === 'SuperAdmin', 403);
 
