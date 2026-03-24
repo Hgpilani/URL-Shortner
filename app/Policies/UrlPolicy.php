@@ -24,13 +24,13 @@ class UrlPolicy
         }
 
         if ($roleName === 'Admin') {
-            // assignment rule: do not see URLs from own company
-            return (int) $url->company_id !== (int) $user->company_id;
+            // updated rule: can see URLs from own company
+            return (int) $url->company_id === (int) $user->company_id;
         }
 
         if ($roleName === 'Member') {
-            // assignment rule: do not see URLs created by self
-            return (int) $url->created_by !== (int) $user->id;
+            // updated rule: can see URLs created by self
+            return (int) $url->created_by === (int) $user->id;
         }
 
         return false;

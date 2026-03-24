@@ -6,20 +6,19 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Url extends Model
+class Invitation extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'company_id',
-        'created_by',
-        'original_url',
-        'short_code',
-        'hits',
-    ];
-
-    protected $casts = [
-        'hits' => 'integer',
+        'invited_by',
+        'invited_name',
+        'email',
+        'role_id',
+        'token',
+        'expires_at',
+        'accepted_at',
     ];
 
     public function company(): BelongsTo
@@ -27,8 +26,8 @@ class Url extends Model
         return $this->belongsTo(Company::class);
     }
 
-    public function creator(): BelongsTo
+    public function inviter(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->belongsTo(User::class, 'invited_by');
     }
 }

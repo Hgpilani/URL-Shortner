@@ -1,17 +1,148 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Admin Dashboard
-        </h2>
-    </x-slot>
+@extends('layouts.app')
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    Team and URL sections go here.
+@section('header')
+    <h2 class="h4 mb-0">Admin Dashboard</h2>
+@endsection
+
+@section('content')
+    <div class="container py-4">
+        <!-- <div class="mb-3">
+            <a href="{{ route('admin.invitations') }}" class="btn btn-primary">Manage Invitations</a>
+        </div> -->
+
+        <div class="row g-3 mt-1">
+            <!-- <div class="col-12 col-md-6 col-lg-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="text-muted small">Company</div>
+                        <div class="fw-semibold">{{ $companyName ?? '-' }}</div>
+                    </div>
+                </div>
+            </div> -->
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="text-muted small">Users</div>
+                        <div class="fs-4 fw-semibold">{{ $usersCount ?? 0 }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="text-muted small">Short URLs</div>
+                        <div class="fs-4 fw-semibold">{{ $urlsCount ?? 0 }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="text-muted small">Total Hits</div>
+                        <div class="fs-4 fw-semibold">{{ $totalHits ?? 0 }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="text-muted small">Pending Invitations</div>
+                        <div class="fs-4 fw-semibold">{{ $pendingInvitationsCount ?? 0 }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-body">
+                <h3 class="h5 mb-3">URLs Per Company</h3>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Company</th>
+                                <th>Total URLs</th>
+                                <th>Total Hits</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse (($urlsPerCompany ?? []) as $row)
+                                <tr>
+                                    <td>{{ $row->company_name }}</td>
+                                    <td>{{ $row->total_urls }}</td>
+                                    <td>{{ $row->total_hits }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="3">No data yet.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-body">
+                <h3 class="h5 mb-3">URLs Per Member/Admin</h3>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>User Name</th>
+                                <th>User Email</th>
+                                <th>Role</th>
+                                <th>Total URLs</th>
+                                <th>Total Hits</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse (($urlsPerMemberOrAdmin ?? []) as $row)
+                                <tr>
+                                    <td>{{ $row->user_name }}</td>
+                                    <td>{{ $row->user_email }}</td>
+                                    <td>{{ $row->role_name }}</td>
+                                    <td>{{ $row->total_urls }}</td>
+                                    <td>{{ $row->total_hits }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5">No data yet.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-body">
+                <h3 class="h5 mb-3">Users Per Role</h3>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Role</th>
+                                <th>Total Users</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse (($usersPerRole ?? []) as $row)
+                                <tr>
+                                    <td>{{ $row->role_name }}</td>
+                                    <td>{{ $row->total_users }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="2">No data yet.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
-</x-app-layout>
+@endsection
