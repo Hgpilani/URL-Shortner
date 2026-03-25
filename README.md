@@ -2,6 +2,8 @@
 
 A simple web app to create **short links** (like `http://localhost:8000/s/abc12345`) that redirect to long URLs.
 
+Built with **Laravel 11**.
+
 This project has **roles**:
 - **SuperAdmin**: manage companies, invitations, view stats, view clients list.
 - **Admin**: manage invitations for their company, see team members, see dashboard.
@@ -32,6 +34,15 @@ Update your database settings in `.env`, then run:
 ```bash
 php artisan migrate --seed
 php artisan serve
+```
+
+If you want to import the provided database dump instead of running migrations:
+
+- Database file: `imageshorten.sql`
+- Import it into your MySQL database (example):
+
+```bash
+mysql -u root -p YOUR_DB_NAME < imageshorten.sql
 ```
 
 Open:
