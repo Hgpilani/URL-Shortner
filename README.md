@@ -38,7 +38,7 @@ php artisan serve
 
 If you want to import the provided database dump instead of running migrations:
 
-- Database file: `imageshorten.sql`
+- Database file: `imageshorten.sql`  in database folder
 - Import it into your MySQL database (example):
 
 ```bash
