@@ -55,26 +55,41 @@
 
         <div class="card mt-3">
             <div class="card-body">
-                <h3 class="h5 mb-3">URLs Per Company</h3>
+                <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
+                    <h3 class="h5 mb-0">Generated Short URLs</h3>
+                    <a href="{{ route('urls.index') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+
                 <div class="table-responsive">
                     <table class="table table-striped table-hover align-middle mb-0">
                         <thead>
                             <tr>
-                                <th>Company</th>
-                                <th>Total URLs</th>
-                                <th>Total Hits</th>
+                                <th>Short URL</th>
+                                <th>Original URL</th>
+                                <th>Created By</th>
+                                <th>Hits</th>
+                                <th>Created At</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse (($urlsPerCompany ?? []) as $row)
+                            @forelse (($recentUrls ?? []) as $url)
+                                @php
+                                    $shortUrl = route('urls.resolve', ['code' => $url->short_code]);
+                                @endphp
                                 <tr>
-                                    <td>{{ $row->company_name }}</td>
-                                    <td>{{ $row->total_urls }}</td>
-                                    <td>{{ $row->total_hits }}</td>
+                                    <td class="text-break">
+                                        <a href="{{ $shortUrl }}" target="_blank" rel="noopener">{{ $shortUrl }}</a>
+                                    </td>
+                                    <td class="text-break">
+                                        <a href="{{ $url->original_url }}" target="_blank" rel="noopener">{{ Str::limit($url->original_url, 40, '...') }}</a>
+                                    </td>
+                                    <td>{{ $url->creator?->name ?? 'System' }}</td>
+                                    <td>{{ $url->hits ?? 0 }}</td>
+                                    <td>{{ optional($url->created_at)->format('Y-m-d') }}</td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="3">No data yet.</td>
+                                    <td colspan="5">No URLs yet.</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -82,10 +97,12 @@
                 </div>
             </div>
         </div>
-
         <div class="card mt-3">
             <div class="card-body">
-                <h3 class="h5 mb-3">URLs Per Member/Admin</h3>
+                <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
+                    <h3 class="h5 mb-0">Team Members</h3>
+                    <a href="{{ route('admin.team-members') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
                 <div class="table-responsive">
                     <table class="table table-striped table-hover align-middle mb-0">
                         <thead>
@@ -116,6 +133,37 @@
                 </div>
             </div>
         </div>
+        <div class="card mt-3">
+            <div class="card-body">
+                <h3 class="h5 mb-3">URLs Per Company</h3>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Company</th>
+                                <th>Total URLs</th>
+                                <th>Total Hits</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse (($urlsPerCompany ?? []) as $row)
+                                <tr>
+                                    <td>{{ $row->company_name }}</td>
+                                    <td>{{ $row->total_urls }}</td>
+                                    <td>{{ $row->total_hits }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="3">No data yet.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        
 
         <div class="card mt-3">
             <div class="card-body">

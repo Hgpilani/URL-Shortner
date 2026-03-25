@@ -33,9 +33,6 @@
                         <a class="nav-link {{ request()->routeIs('superadmin.invitations') ? 'active' : '' }}" href="{{ route('superadmin.invitations') }}">Invitations</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('superadmin.urls') ? 'active' : '' }}" href="{{ route('superadmin.urls') }}">All URLs</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('superadmin.stats') ? 'active' : '' }}" href="{{ route('superadmin.stats') }}">Stats</a>
                     </li>
                 @endif
@@ -43,6 +40,7 @@
 
             <div class="d-flex align-items-center gap-2">
                 <span class="text-muted small">{{ Auth::user()->name }}</span>
+                <a href="{{ route('profile.edit') }}" class="btn btn-outline-secondary btn-sm">Profile</a>
                 <form method="POST" action="{{ route('logout') }}" class="mb-0">
                     @csrf
                     <button type="submit" class="btn btn-outline-secondary btn-sm">Logout</button>

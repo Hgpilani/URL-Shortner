@@ -6,7 +6,6 @@ use App\Models\Company;
 use App\Models\Url;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
@@ -16,6 +15,14 @@ class SuperAdminController extends Controller
     {
         $this->ensureSuperAdmin($request);
         $statsData = $this->buildStatsData();
+        $recentUrls = Url::query()
+            ->with(['creator', 'company'])
+            ->latest()
+            ->limit(5)
+            ->get();
+        $clientsPreview = $this->buildClientsQuery()
+            ->limit(5)
+            ->get();
 
         return view('superadmin.dashboard', [
             'companiesCount' => Company::query()->count(),
@@ -26,9 +33,21 @@ class SuperAdminController extends Controller
                 ->where('expires_at', '>', now())
                 ->count(),
             'urlsPerCompany' => $statsData['urlsPerCompany'],
-            'urlsPerMemberOrAdmin' => $statsData['urlsPerMemberOrAdmin'],
+            'urlsPerMemberOrAdmin' => $clientsPreview,
             'usersPerRole' => $statsData['usersPerRole'],
+            'recentUrls' => $recentUrls,
         ]);
+    }
+
+    public function clients(Request $request): View
+    {
+        $this->ensureSuperAdmin($request);
+
+        $clients = $this->buildClientsQuery()
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('superadmin.clients', compact('clients'));
     }
 
     public function companies(Request $request): View
@@ -64,57 +83,6 @@ class SuperAdminController extends Controller
             ->paginate(10);
 
         return view('superadmin.invitations', compact('invitations'));
-    }
-
-    public function urls(Request $request): View
-    {
-        $this->ensureSuperAdmin($request);
-        $interval = (string) $request->query('interval', 'all');
-
-        $query = Url::query()
-            ->with(['creator', 'company'])
-            ->latest();
-
-        $this->applyDateIntervalScope($query, $interval);
-
-        $urls = $query->paginate(10)->withQueryString();
-
-        return view('superadmin.urls', compact('urls', 'interval'));
-    }
-
-    public function downloadUrlsCsv(Request $request): Response
-    {
-        $this->ensureSuperAdmin($request);
-        $interval = (string) $request->query('interval', 'all');
-
-        $query = Url::query()
-            ->with(['creator', 'company'])
-            ->latest();
-
-        $this->applyDateIntervalScope($query, $interval);
-
-        $rows = $query->get();
-        $csv = [];
-        $csv[] = implode(',', ['Short URL', 'Long URL', 'Company', 'Created By', 'Hits', 'Created At']);
-
-        foreach ($rows as $url) {
-            $csv[] = implode(',', [
-                $this->csvCell(route('urls.resolve', ['code' => $url->short_code])),
-                $this->csvCell($url->original_url),
-                $this->csvCell($url->company?->name ?? '-'),
-                $this->csvCell($url->creator?->name ?? 'System'),
-                (string) ($url->hits ?? 0),
-                $this->csvCell((string) $url->created_at),
-            ]);
-        }
-
-        $filename = 'superadmin_urls_'.$interval.'_'.now()->format('Ymd_His').'.csv';
-
-        return response(implode("\n", $csv), 200, [
-            'Content-Type' => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
-        ]);
-
     }
 
     public function stats(Request $request): View
@@ -182,22 +150,7 @@ class SuperAdminController extends Controller
             ->orderByDesc('total_urls')
             ->get();
 
-        $urlsPerMemberOrAdmin = DB::table('urls')
-            ->join('users', 'users.id', '=', 'urls.created_by')
-            ->join('roles', 'roles.id', '=', 'users.role_id')
-            ->join('companies', 'companies.id', '=', 'users.company_id')
-            ->whereIn('roles.name', ['Admin', 'Member'])
-            ->select(
-                'users.name as user_name',
-                'users.email as user_email',
-                'companies.name as company_name',
-                'roles.name as role_name',
-                DB::raw('COUNT(urls.id) as total_urls'),
-                DB::raw('COALESCE(SUM(urls.hits), 0) as total_hits')
-            )
-            ->groupBy('users.id', 'users.name', 'users.email', 'companies.name', 'roles.name')
-            ->orderByDesc('total_urls')
-            ->get();
+        $urlsPerMemberOrAdmin = $this->buildClientsQuery()->get();
 
         $usersPerRole = DB::table('users')
             ->join('roles', 'roles.id', '=', 'users.role_id')
@@ -211,5 +164,26 @@ class SuperAdminController extends Controller
             'urlsPerMemberOrAdmin' => $urlsPerMemberOrAdmin,
             'usersPerRole' => $usersPerRole,
         ];
+    }
+
+    private function buildClientsQuery()
+    {
+        return DB::table('users')
+            ->join('roles', 'roles.id', '=', 'users.role_id')
+            ->leftJoin('companies', 'companies.id', '=', 'users.company_id')
+            ->leftJoin('urls', 'urls.created_by', '=', 'users.id')
+            ->whereIn('roles.name', ['SuperAdmin', 'Admin', 'Member'])
+            ->select(
+                'users.id as user_id',
+                'users.name as user_name',
+                'users.email as user_email',
+                'companies.name as company_name',
+                'roles.name as role_name',
+                DB::raw('COUNT(urls.id) as total_urls'),
+                DB::raw('COALESCE(SUM(urls.hits), 0) as total_hits')
+            )
+            ->groupBy('users.id', 'users.name', 'users.email', 'companies.name', 'roles.name')
+            ->orderByDesc('total_urls')
+            ->orderBy('users.name');
     }
 }
